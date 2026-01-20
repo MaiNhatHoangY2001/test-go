@@ -20,8 +20,8 @@ func NewCreateTodoUseCase(repo repositories.TodoRepository) *CreateTodoUseCase {
 }
 
 type CreateTodoInput struct {
-	Title       string
-	Description string
+	Title       string `json:"title" binding:"required,min=1,max=200"`
+	Description string `json:"description" binding:"max=1000"`
 }
 
 type CreateTodoOutput struct {
