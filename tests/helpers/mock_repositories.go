@@ -26,12 +26,12 @@ func (m *MockTodoRepository) GetByID(ctx context.Context, id string) (*entities.
 	return args.Get(0).(*entities.Todo), args.Error(1)
 }
 
-func (m *MockTodoRepository) GetAll(ctx context.Context) ([]*entities.Todo, error) {
-	args := m.Called(ctx)
+func (m *MockTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*entities.Todo, int64, error) {
+	args := m.Called(ctx, page, limit)
 	if args.Get(0) == nil {
-		return nil, args.Error(1)
+		return nil, 0, args.Error(2)
 	}
-	return args.Get(0).([]*entities.Todo), args.Error(1)
+	return args.Get(0).([]*entities.Todo), args.Get(1).(int64), args.Error(2)
 }
 
 func (m *MockTodoRepository) Update(ctx context.Context, todo *entities.Todo) error {

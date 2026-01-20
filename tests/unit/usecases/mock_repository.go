@@ -35,14 +35,26 @@ func (m *MockTodoRepository) GetByID(ctx context.Context, id string) (*entities.
 	return nil, errors.New("todo not found")
 }
 
-func (m *MockTodoRepository) GetAll(ctx context.Context) ([]*entities.Todo, error) {
+func (m *MockTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*entities.Todo, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	todos := make([]*entities.Todo, 0, len(m.todos))
 	for _, todo := range m.todos {
 		todos = append(todos, todo)
 	}
-	return todos, nil
+	totalCount := int64(len(todos))
+	
+	// Apply pagination
+	start := (page - 1) * limit
+	end := start + limit
+	if start > len(todos) {
+		return []*entities.Todo{}, totalCount, nil
+	}
+	if end > len(todos) {
+		end = len(todos)
+	}
+	
+	return todos[start:end], totalCount, nil
 }
 
 func (m *MockTodoRepository) Update(ctx context.Context, todo *entities.Todo) error {

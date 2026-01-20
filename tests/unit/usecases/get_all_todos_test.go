@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"test-go/internal/domain/entities"
+	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
 	"testing"
 	"time"
@@ -36,19 +37,19 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo.Create(context.Background(), todo2)
 
 	useCase := usecase.NewGetAllTodosUseCase(repo)
-	outputs, err := useCase.Execute(context.Background())
+	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{Page: 1, Limit: 10})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if len(outputs) != 2 {
-		t.Errorf("Expected 2 todos, got %d", len(outputs))
+	if len(result.Data) != 2 {
+		t.Errorf("Expected 2 todos, got %d", len(result.Data))
 	}
 
 	// Verify both todos are present (order may vary due to map iteration)
 	titles := make(map[string]bool)
-	for _, output := range outputs {
+	for _, output := range result.Data {
 		titles[output.Title] = true
 	}
 
@@ -65,13 +66,13 @@ func TestGetAllTodosUseCase_EmptyList(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewGetAllTodosUseCase(repo)
 
-	outputs, err := useCase.Execute(context.Background())
+	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{Page: 1, Limit: 10})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if len(outputs) != 0 {
-		t.Errorf("Expected 0 todos, got %d", len(outputs))
+	if len(result.Data) != 0 {
+		t.Errorf("Expected 0 todos, got %d", len(result.Data))
 	}
 }
