@@ -4,6 +4,8 @@ import (
 	"context"
 	"test-go/internal/domain/repositories"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type GetAllTodosUseCase struct {
@@ -17,12 +19,12 @@ func NewGetAllTodosUseCase(repo repositories.TodoRepository) *GetAllTodosUseCase
 }
 
 type GetAllTodosOutput struct {
-	ID          string
-	Title       string
-	Description string
-	Completed   bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          primitive.ObjectID `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Completed   bool               `json:"completed"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 func (uc *GetAllTodosUseCase) Execute(ctx context.Context) ([]GetAllTodosOutput, error) {

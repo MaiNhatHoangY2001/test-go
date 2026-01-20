@@ -6,7 +6,7 @@ import (
 	"test-go/internal/domain/repositories"
 	"time"
 
-	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CreateTodoUseCase struct {
@@ -25,17 +25,17 @@ type CreateTodoInput struct {
 }
 
 type CreateTodoOutput struct {
-	ID          string
-	Title       string
-	Description string
-	Completed   bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          primitive.ObjectID `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Completed   bool               `json:"completed"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 func (uc *CreateTodoUseCase) Execute(ctx context.Context, input CreateTodoInput) (*CreateTodoOutput, error) {
 	todo := &entities.Todo{
-		ID:          uuid.New().String(),
+		ID:          primitive.NewObjectID(),
 		Title:       input.Title,
 		Description: input.Description,
 		Completed:   false,
@@ -48,7 +48,7 @@ func (uc *CreateTodoUseCase) Execute(ctx context.Context, input CreateTodoInput)
 	}
 
 	return &CreateTodoOutput{
-		ID:          todo.ID,
+		ID:          primitive.NewObjectID(),
 		Title:       todo.Title,
 		Description: todo.Description,
 		Completed:   todo.Completed,

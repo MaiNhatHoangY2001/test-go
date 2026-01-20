@@ -4,6 +4,8 @@ import (
 	"context"
 	"test-go/internal/domain/repositories"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UpdateTodoUseCase struct {
@@ -24,12 +26,12 @@ type UpdateTodoInput struct {
 }
 
 type UpdateTodoOutput struct {
-	ID          string
-	Title       string
-	Description string
-	Completed   bool
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          primitive.ObjectID `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	Completed   bool               `json:"completed"`
+	CreatedAt   time.Time          `json:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
 func (uc *UpdateTodoUseCase) Execute(ctx context.Context, input UpdateTodoInput) (*UpdateTodoOutput, error) {

@@ -10,7 +10,7 @@ import (
 
 type InMemoryTodoRepository struct {
 	mu    sync.RWMutex
-	todos map[string]*entities.Todo
+	todos map[string]*entities.Todo // Use string representation of ObjectID as key
 }
 
 func NewInMemoryTodoRepository() repositories.TodoRepository {
@@ -23,11 +23,12 @@ func (i *InMemoryTodoRepository) Create(ctx context.Context, todo *entities.Todo
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
-	if _, exists := i.todos[todo.ID]; exists {
+	key := todo.ID.Hex()
+	if _, exists := i.todos[key]; exists {
 		return errors.New("todo already exists")
 	}
 
-	i.todos[todo.ID] = todo
+	i.todos[key] = todo
 	return nil
 }
 
@@ -71,10 +72,11 @@ func (i *InMemoryTodoRepository) Update(ctx context.Context, todo *entities.Todo
 	i.mu.Lock()
 	defer i.mu.Unlock()
 
-	if _, exists := i.todos[todo.ID]; !exists {
+	key := todo.ID.Hex()
+	if _, exists := i.todos[key]; !exists {
 		return errors.New("todo not found")
 	}
 
-	i.todos[todo.ID] = todo
+	i.todos[key] = todo
 	return nil
 }
