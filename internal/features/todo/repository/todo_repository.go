@@ -1,14 +1,14 @@
 package repository
 
 import (
-"context"
-"test-go/internal/features/todo/entity"
+	"context"
+	"test-go/internal/domain/entities"
 )
 
 type TodoRepository interface {
-Create(ctx context.Context, todo *entity.Todo) error
-GetByID(ctx context.Context, id string) (*entity.Todo, error)
-GetAll(ctx context.Context) ([]*entity.Todo, error)
-Update(ctx context.Context, todo *entity.Todo) error
-Delete(ctx context.Context, id string) error
+	Create(ctx context.Context, todo *entities.Todo) error
+	GetByID(ctx context.Context, id string) (*entities.Todo, error)
+	GetAll(ctx context.Context) ([]*entities.Todo, error)
+	Update(ctx context.Context, todo *entities.Todo) error
+	Delete(ctx context.Context, id string) error
 }

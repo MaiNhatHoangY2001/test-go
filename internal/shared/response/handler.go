@@ -106,3 +106,11 @@ func Unauthorized(c *gin.Context, message string) {
 		Message: message,
 	})
 }
+
+// InternalServerError sends a 500 Internal Server Error response
+func InternalServerError(c *gin.Context, message string) {
+	c.JSON(http.StatusInternalServerError, ErrorResponse{
+		Code:    string(errs.InternalError),
+		Message: message,
+	})
+}

@@ -2,8 +2,8 @@ package usecases
 
 import (
 	"context"
+	"test-go/internal/domain/entities"
 	"test-go/internal/features/todo/usecase"
-	"test-go/internal/features/todo/entity"
 	"testing"
 	"time"
 
@@ -14,7 +14,7 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
 	// Create test todos
-	todo1 := &entity.Todo{
+	todo1 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
 		Title:       "Todo 1",
 		Description: "Description 1",
@@ -23,7 +23,7 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 		UpdatedAt:   time.Now(),
 	}
 
-	todo2 := &entity.Todo{
+	todo2 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
 		Title:       "Todo 2",
 		Description: "Description 2",

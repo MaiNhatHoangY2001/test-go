@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
+	"test-go/internal/domain/entities"
 	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
-	"test-go/internal/features/todo/entity"
 	"testing"
 	"time"
 
@@ -15,7 +15,7 @@ func TestUpdateTodoUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
 	testID := primitive.NewObjectID()
-	todo := &entity.Todo{
+	todo := &entities.Todo{
 		ID:          testID,
 		Title:       "Original title",
 		Description: "Original description",
