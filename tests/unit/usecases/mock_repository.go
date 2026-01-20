@@ -4,29 +4,29 @@ import (
 	"context"
 	"errors"
 	"sync"
-	"test-go/internal/domain/entities"
+	"test-go/internal/features/todo/entity"
 )
 
 // MockTodoRepository is a simple mock implementation for testing
 type MockTodoRepository struct {
 	mu    sync.RWMutex
-	todos map[string]*entities.Todo
+	todos map[string]*entity.Todo
 }
 
 func NewMockTodoRepository() *MockTodoRepository {
 	return &MockTodoRepository{
-		todos: make(map[string]*entities.Todo),
+		todos: make(map[string]*entity.Todo),
 	}
 }
 
-func (m *MockTodoRepository) Create(ctx context.Context, todo *entities.Todo) error {
+func (m *MockTodoRepository) Create(ctx context.Context, todo *entity.Todo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.todos[todo.ID.Hex()] = todo
 	return nil
 }
 
-func (m *MockTodoRepository) GetByID(ctx context.Context, id string) (*entities.Todo, error) {
+func (m *MockTodoRepository) GetByID(ctx context.Context, id string) (*entity.Todo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	if todo, exists := m.todos[id]; exists {
@@ -35,17 +35,17 @@ func (m *MockTodoRepository) GetByID(ctx context.Context, id string) (*entities.
 	return nil, errors.New("todo not found")
 }
 
-func (m *MockTodoRepository) GetAll(ctx context.Context) ([]*entities.Todo, error) {
+func (m *MockTodoRepository) GetAll(ctx context.Context) ([]*entity.Todo, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	todos := make([]*entities.Todo, 0, len(m.todos))
+	todos := make([]*entity.Todo, 0, len(m.todos))
 	for _, todo := range m.todos {
 		todos = append(todos, todo)
 	}
 	return todos, nil
 }
 
-func (m *MockTodoRepository) Update(ctx context.Context, todo *entities.Todo) error {
+func (m *MockTodoRepository) Update(ctx context.Context, todo *entity.Todo) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	key := todo.ID.Hex()

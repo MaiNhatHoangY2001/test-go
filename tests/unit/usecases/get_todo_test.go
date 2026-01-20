@@ -2,8 +2,9 @@ package usecases
 
 import (
 	"context"
-	"test-go/internal/application/usecases"
-	"test-go/internal/domain/entities"
+	"test-go/internal/features/todo/dto"
+	"test-go/internal/features/todo/usecase"
+	"test-go/internal/features/todo/entity"
 	"testing"
 	"time"
 
@@ -14,7 +15,7 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
 	testID := primitive.NewObjectID()
-	todo := &entities.Todo{
+	todo := &entity.Todo{
 		ID:          testID,
 		Title:       "Test todo",
 		Description: "Test",
@@ -24,8 +25,8 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 	}
 	repo.Create(context.Background(), todo)
 
-	useCase := usecases.NewGetTodoUseCase(repo)
-	input := usecases.GetTodoInput{ID: testID.Hex()}
+	useCase := usecase.NewGetTodoUseCase(repo)
+	input := dto.GetTodoInput{ID: testID.Hex()}
 
 	output, err := useCase.Execute(context.Background(), input)
 
@@ -44,8 +45,8 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 
 func TestGetTodoUseCase_NotFound(t *testing.T) {
 	repo := NewMockTodoRepository()
-	useCase := usecases.NewGetTodoUseCase(repo)
-	input := usecases.GetTodoInput{ID: "nonexistent"}
+	useCase := usecase.NewGetTodoUseCase(repo)
+	input := dto.GetTodoInput{ID: "nonexistent"}
 	output, err := useCase.Execute(context.Background(), input)
 
 	if err == nil {

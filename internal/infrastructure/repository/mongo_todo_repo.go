@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	"test-go/internal/domain/entities"
-	"test-go/internal/domain/repositories"
+	"test-go/internal/features/todo/entity"
+	todoRepository "test-go/internal/features/todo/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,13 +15,13 @@ type MongoTodoRepository struct {
 	collection *mongo.Collection
 }
 
-func NewMongoTodoRepository(collection *mongo.Collection) repositories.TodoRepository {
+func NewMongoTodoRepository(collection *mongo.Collection) todoRepository.TodoRepository {
 	return &MongoTodoRepository{
 		collection: collection,
 	}
 }
 
-func (m *MongoTodoRepository) Create(ctx context.Context, todo *entities.Todo) error {
+func (m *MongoTodoRepository) Create(ctx context.Context, todo *entity.Todo) error {
 	_, err := m.collection.InsertOne(ctx, todo)
 	return err
 }
@@ -44,14 +44,14 @@ func (m *MongoTodoRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (m *MongoTodoRepository) GetAll(ctx context.Context) ([]*entities.Todo, error) {
+func (m *MongoTodoRepository) GetAll(ctx context.Context) ([]*entity.Todo, error) {
 	cursor, err := m.collection.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var todos []*entities.Todo
+	var todos []*entity.Todo
 	if err = cursor.All(ctx, &todos); err != nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ func (m *MongoTodoRepository) GetAll(ctx context.Context) ([]*entities.Todo, err
 	return todos, nil
 }
 
-func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entities.Todo, error) {
-	var todo entities.Todo
+func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entity.Todo, error) {
+	var todo entity.Todo
 
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -78,7 +78,7 @@ func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entities
 	return &todo, nil
 }
 
-func (m *MongoTodoRepository) Update(ctx context.Context, todo *entities.Todo) error {
+func (m *MongoTodoRepository) Update(ctx context.Context, todo *entity.Todo) error {
 	_, err := m.collection.ReplaceOne(
 		ctx,
 		bson.M{"_id": todo.ID},

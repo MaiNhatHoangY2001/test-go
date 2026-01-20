@@ -26,16 +26,22 @@ func NewApp(config *AppConfig) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
-	collection := client.Database(config.DatabaseName).Collection(config.CollectionName)
-	repo := repository.NewMongoTodoRepository(collection)
+	todoCollection := client.Database(config.DatabaseName).Collection(config.CollectionName)
+	todoRepo := repository.NewMongoTodoRepository(todoCollection)
 
-	createUseCase := usecases.NewCreateTodoUseCase(repo)
-	getTodoUseCase := usecases.NewGetTodoUseCase(repo)
-	getAllUseCase := usecases.NewGetAllTodosUseCase(repo)
-	updateUseCase := usecases.NewUpdateTodoUseCase(repo)
-	deleteUseCase := usecases.NewDeleteTodoUseCase(repo)
+	userCollection := client.Database(config.DatabaseName).Collection("users")
+	userRepo := repository.NewMongoUserRepository(userCollection)
 
-	handlers := handlers.NewTodoHandler(
+	createUseCase := usecases.NewCreateTodoUseCase(todoRepo)
+	getTodoUseCase := usecases.NewGetTodoUseCase(todoRepo)
+	getAllUseCase := usecases.NewGetAllTodosUseCase(todoRepo)
+	updateUseCase := usecases.NewUpdateTodoUseCase(todoRepo)
+	deleteUseCase := usecases.NewDeleteTodoUseCase(todoRepo)
+
+	signUpUseCase := usecases.NewSignUpUseCase(userRepo)
+	loginUseCase := usecases.NewLoginUseCase(userRepo)
+
+	todoHandlers := handlers.NewTodoHandler(
 		createUseCase,
 		getTodoUseCase,
 		getAllUseCase,
@@ -43,9 +49,12 @@ func NewApp(config *AppConfig) (*App, error) {
 		deleteUseCase,
 	)
 
+	authHandler := handlers.NewAuthHandler(signUpUseCase, loginUseCase)
+
 	router := gin.Default()
 
-	routes.SetupTodoRoutes(router, handlers)
+	routes.SetupTodoRoutes(router, todoHandlers)
+	routes.SetupAuthRoutes(router, authHandler)
 
 	return &App{
 		Router: router,

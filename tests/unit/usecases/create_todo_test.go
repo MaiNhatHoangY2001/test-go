@@ -2,15 +2,16 @@ package usecases
 
 import (
 	"context"
-	"test-go/internal/application/usecases"
+	"test-go/internal/features/todo/dto"
+	"test-go/internal/features/todo/usecase"
 	"testing"
 )
 
 func TestCreateTodoUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
-	useCase := usecases.NewCreateTodoUseCase(repo)
+	useCase := usecase.NewCreateTodoUseCase(repo)
 
-	input := usecases.CreateTodoInput{
+	input := dto.CreateTodoInput{
 		Title:       "Test Todo",
 		Description: "Test Description",
 	}

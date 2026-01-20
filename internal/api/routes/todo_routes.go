@@ -2,12 +2,16 @@ package routes
 
 import (
 	"test-go/internal/api/handlers"
+	"test-go/internal/api/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupTodoRoutes(router *gin.Engine, handler *handlers.TodoHandler) {
+	router.Use(middleware.CORSMiddleware())
+
 	todoGroup := router.Group("/todos")
+	todoGroup.Use(middleware.AuthMiddleware())
 	{
 		//POST /todos - Create a new todo
 		todoGroup.POST("", handler.CreateTodo)
