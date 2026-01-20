@@ -3,6 +3,8 @@ package dto
 import (
 	"time"
 
+	sharedDto "test-go/internal/shared/dto"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -34,8 +36,7 @@ type GetTodoOutput struct {
 }
 
 type GetAllTodosInput struct {
-	Page  int `form:"page" binding:"omitempty,min=1"`
-	Limit int `form:"limit" binding:"omitempty,min=1,max=100"`
+	sharedDto.PaginationInput
 }
 
 type GetAllTodosOutput struct {
@@ -48,15 +49,8 @@ type GetAllTodosOutput struct {
 }
 
 type GetAllTodosResponse struct {
-	Data       []GetAllTodosOutput `json:"data"`
-	Pagination PaginationInfo      `json:"pagination"`
-}
-
-type PaginationInfo struct {
-	Page       int   `json:"page"`
-	Limit      int   `json:"limit"`
-	TotalItems int64 `json:"total_items"`
-	TotalPages int   `json:"total_pages"`
+	Data       []GetAllTodosOutput    `json:"data"`
+	Pagination sharedDto.PaginationInfo `json:"pagination"`
 }
 
 type UpdateTodoInput struct {

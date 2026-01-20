@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"test-go/pkg/constants"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -22,8 +23,8 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "missing authorization header",
-				"code":  "UNAUTHORIZED",
+				"error": constants.MsgMissingAuthHeader,
+				"code":  constants.CodeUnauthorized,
 			})
 			ctx.Abort()
 			return
@@ -33,8 +34,8 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid authorization header format",
-				"code":  "UNAUTHORIZED",
+				"error": constants.MsgInvalidAuthHeader,
+				"code":  constants.CodeUnauthorized,
 			})
 			ctx.Abort()
 			return
@@ -52,8 +53,8 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		// Check if token is valid and extract claims
 		if err != nil || !token.Valid {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid or expired token",
-				"code":  "UNAUTHORIZED",
+				"error": constants.MsgInvalidToken,
+				"code":  constants.CodeUnauthorized,
 			})
 			ctx.Abort()
 			return
@@ -62,8 +63,8 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		claims, ok := token.Claims.(*CustomClaims)
 		if !ok {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid token claims",
-				"code":  "UNAUTHORIZED",
+				"error": constants.MsgInvalidTokenClaims,
+				"code":  constants.CodeUnauthorized,
 			})
 			ctx.Abort()
 			return
@@ -72,8 +73,8 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		// Validate required claims
 		if claims.UserID == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": "missing user_id in token",
-				"code":  "UNAUTHORIZED",
+				"error": constants.MsgMissingUserID,
+				"code":  constants.CodeUnauthorized,
 			})
 			ctx.Abort()
 			return

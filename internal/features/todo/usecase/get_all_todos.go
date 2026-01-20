@@ -4,6 +4,8 @@ import (
 	"context"
 	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
+	sharedDto "test-go/internal/shared/dto"
+	"test-go/pkg/constants"
 )
 
 type GetAllTodosUseCase struct {
@@ -18,16 +20,16 @@ repository: repo,
 
 func (uc *GetAllTodosUseCase) Execute(ctx context.Context, input dto.GetAllTodosInput) (*dto.GetAllTodosResponse, error) {
 	// Set default pagination values
-	page := input.Page
-	if page <= 0 {
-		page = 1
+	pageNum := input.PageNum
+	if pageNum <= 0 {
+		pageNum = constants.DefaultPageNum
 	}
-	limit := input.Limit
-	if limit <= 0 {
-		limit = 10
+	pageSize := input.PageSize
+	if pageSize <= 0 {
+		pageSize = constants.DefaultPageSize
 	}
 
-	todos, totalCount, err := uc.repository.GetAll(ctx, page, limit)
+	todos, totalCount, err := uc.repository.GetAll(ctx, pageNum, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +46,16 @@ func (uc *GetAllTodosUseCase) Execute(ctx context.Context, input dto.GetAllTodos
 		}
 	}
 
-	totalPages := int(totalCount) / limit
-	if int(totalCount)%limit != 0 {
+	totalPages := int(totalCount) / pageSize
+	if int(totalCount)%pageSize != 0 {
 		totalPages++
 	}
 
 	return &dto.GetAllTodosResponse{
 		Data: outputs,
-		Pagination: dto.PaginationInfo{
-			Page:       page,
-			Limit:      limit,
+		Pagination: sharedDto.PaginationInfo{
+			PageNum:    pageNum,
+			PageSize:   pageSize,
 			TotalItems: totalCount,
 			TotalPages: totalPages,
 		},

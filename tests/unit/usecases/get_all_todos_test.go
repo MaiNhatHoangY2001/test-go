@@ -5,6 +5,8 @@ import (
 	"test-go/internal/domain/entities"
 	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
+	sharedDto "test-go/internal/shared/dto"
+	"test-go/pkg/constants"
 	"testing"
 	"time"
 
@@ -37,7 +39,12 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo.Create(context.Background(), todo2)
 
 	useCase := usecase.NewGetAllTodosUseCase(repo)
-	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{Page: 1, Limit: 10})
+	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{
+		PaginationInput: sharedDto.PaginationInput{
+			PageNum:  constants.DefaultPageNum,
+			PageSize: constants.DefaultPageSize,
+		},
+	})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -66,7 +73,12 @@ func TestGetAllTodosUseCase_EmptyList(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewGetAllTodosUseCase(repo)
 
-	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{Page: 1, Limit: 10})
+	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{
+		PaginationInput: sharedDto.PaginationInput{
+			PageNum:  constants.DefaultPageNum,
+			PageSize: constants.DefaultPageSize,
+		},
+	})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
