@@ -17,10 +17,10 @@ func NewUpdateTodoUseCase(repo repositories.TodoRepository) *UpdateTodoUseCase {
 }
 
 type UpdateTodoInput struct {
-	ID          string
-	Title       string
-	Description string
-	Completed   bool
+	ID          string `json:"-"`
+	Title       string `json:"title" binding:"required,min=1,max=200"`
+	Description string `json:"description" binding:"max=1000"`
+	Completed   bool   `json:"completed"`
 }
 
 type UpdateTodoOutput struct {

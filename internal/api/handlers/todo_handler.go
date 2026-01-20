@@ -35,13 +35,13 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 	var input usecases.CreateTodoInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request", "details": err.Error()})
 		return
 	}
 
 	output, err := h.createUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create todo", "details": err.Error()})
 		return
 	}
 
@@ -59,11 +59,11 @@ func (h *TodoHandler) GetAllTodos(c *gin.Context) {
 }
 
 func (h *TodoHandler) GetTodo(c *gin.Context) {
-	id, _ := c.Params.Get("id")
+	id := c.Param("id")
 
 	output, err := h.getTodoUseCase.Execute(c.Request.Context(), usecases.GetTodoInput{ID: id})
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found", "details": err.Error()})
 		return
 	}
 
@@ -71,18 +71,18 @@ func (h *TodoHandler) GetTodo(c *gin.Context) {
 }
 
 func (h *TodoHandler) UpdateTodo(c *gin.Context) {
-	id, _ := c.Params.Get("id")
+	id := c.Param("id")
 	var input usecases.UpdateTodoInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request", "details": err.Error()})
 		return
 	}
 
 	input.ID = id
 	output, err := h.updateUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update todo", "details": err.Error()})
 		return
 	}
 
@@ -90,11 +90,10 @@ func (h *TodoHandler) UpdateTodo(c *gin.Context) {
 }
 
 func (h *TodoHandler) DeleteTodo(c *gin.Context) {
-	id, _ := c.Params.Get("id")
-
+	id := c.Param("id")
 	err := h.deleteUseCase.Execute(c.Request.Context(), usecases.DeleteTodoInput{ID: id})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete todo", "details": err.Error()})
 		return
 	}
 
