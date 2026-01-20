@@ -93,7 +93,14 @@ func (h *TodoHandler) GetAllTodos(c *gin.Context) {
 		"page":       result.Pagination.PageNum,
 		"total":      result.Pagination.TotalItems,
 	}).Info("todos_retrieved")
-	response.OK(c, result)
+	
+	// Use paging response format
+	response.SuccessPaging(c, 
+		int64(result.Pagination.PageNum),
+		int64(result.Pagination.PageSize),
+		result.Pagination.TotalItems,
+		result.Data,
+	)
 }
 
 func (h *TodoHandler) GetTodo(c *gin.Context) {

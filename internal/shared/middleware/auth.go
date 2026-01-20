@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"test-go/internal/shared/response"
 	"test-go/pkg/constants"
 
 	"github.com/gin-gonic/gin"
@@ -22,9 +23,12 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": constants.MsgMissingAuthHeader,
-				"code":  constants.CodeUnauthorized,
+			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
+				Success: false,
+				Error: &response.ErrorInfo{
+					Code:    int64(constants.CodeUnauthorized),
+					Message: constants.MsgMissingAuthHeader,
+				},
 			})
 			ctx.Abort()
 			return
@@ -33,9 +37,12 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		// Extract Bearer token
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": constants.MsgInvalidAuthHeader,
-				"code":  constants.CodeUnauthorized,
+			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
+				Success: false,
+				Error: &response.ErrorInfo{
+					Code:    int64(constants.CodeUnauthorized),
+					Message: constants.MsgInvalidAuthHeader,
+				},
 			})
 			ctx.Abort()
 			return
@@ -52,9 +59,12 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		// Check if token is valid and extract claims
 		if err != nil || !token.Valid {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": constants.MsgInvalidToken,
-				"code":  constants.CodeUnauthorized,
+			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
+				Success: false,
+				Error: &response.ErrorInfo{
+					Code:    int64(constants.CodeUnauthorized),
+					Message: constants.MsgInvalidToken,
+				},
 			})
 			ctx.Abort()
 			return
@@ -62,9 +72,12 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		claims, ok := token.Claims.(*CustomClaims)
 		if !ok {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": constants.MsgInvalidTokenClaims,
-				"code":  constants.CodeUnauthorized,
+			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
+				Success: false,
+				Error: &response.ErrorInfo{
+					Code:    int64(constants.CodeUnauthorized),
+					Message: constants.MsgInvalidTokenClaims,
+				},
 			})
 			ctx.Abort()
 			return
@@ -72,9 +85,12 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		// Validate required claims
 		if claims.UserID == "" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"error": constants.MsgMissingUserID,
-				"code":  constants.CodeUnauthorized,
+			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
+				Success: false,
+				Error: &response.ErrorInfo{
+					Code:    int64(constants.CodeUnauthorized),
+					Message: constants.MsgMissingUserID,
+				},
 			})
 			ctx.Abort()
 			return
