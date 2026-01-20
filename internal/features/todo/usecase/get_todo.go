@@ -3,16 +3,16 @@ package usecase
 import (
 	"context"
 	"strings"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
-	"test-go/internal/features/todo/repository"
 	errs "test-go/internal/shared/errors"
 )
 
 type GetTodoUseCase struct {
-	repository repository.TodoRepository
+	repository repositories.TodoRepository
 }
 
-func NewGetTodoUseCase(repo repository.TodoRepository) *GetTodoUseCase {
+func NewGetTodoUseCase(repo repositories.TodoRepository) *GetTodoUseCase {
 	return &GetTodoUseCase{
 		repository: repo,
 	}

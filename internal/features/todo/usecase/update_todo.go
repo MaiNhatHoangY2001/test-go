@@ -3,17 +3,17 @@ package usecase
 import (
 	"context"
 	"strings"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
-	"test-go/internal/features/todo/repository"
 	errs "test-go/internal/shared/errors"
 	"time"
 )
 
 type UpdateTodoUseCase struct {
-	repository repository.TodoRepository
+	repository repositories.TodoRepository
 }
 
-func NewUpdateTodoUseCase(repo repository.TodoRepository) *UpdateTodoUseCase {
+func NewUpdateTodoUseCase(repo repositories.TodoRepository) *UpdateTodoUseCase {
 	return &UpdateTodoUseCase{
 		repository: repo,
 	}

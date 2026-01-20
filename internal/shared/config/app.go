@@ -29,6 +29,7 @@ type AppConfig struct {
 	MongoURI       string
 	DatabaseName   string
 	CollectionName string
+	JWTSecret      []byte
 }
 
 func NewApp(config *AppConfig) (*App, error) {
@@ -95,7 +96,7 @@ func NewApp(config *AppConfig) (*App, error) {
 	// Setup versioned routes
 	v1 := router.Group("/api/v1")
 	{
-		routes.SetupTodoRoutes(v1, todoHandlers)
+		routes.SetupTodoRoutes(v1, todoHandlers, config.JWTSecret)
 		authRoutes.SetupAuthRoutes(v1, authHandler)
 	}
 

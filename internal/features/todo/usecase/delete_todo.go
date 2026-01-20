@@ -3,16 +3,16 @@ package usecase
 import (
 	"context"
 	"strings"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
-	"test-go/internal/features/todo/repository"
 	errs "test-go/internal/shared/errors"
 )
 
 type DeleteTodoUseCase struct {
-	repository repository.TodoRepository
+	repository repositories.TodoRepository
 }
 
-func NewDeleteTodoUseCase(repo repository.TodoRepository) *DeleteTodoUseCase {
+func NewDeleteTodoUseCase(repo repositories.TodoRepository) *DeleteTodoUseCase {
 	return &DeleteTodoUseCase{
 		repository: repo,
 	}

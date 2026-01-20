@@ -57,15 +57,27 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 }
 
 func (h *TodoHandler) GetAllTodos(c *gin.Context) {
-	outputs, err := h.getAllUseCase.Execute(c.Request.Context())
+	var input dto.GetAllTodosInput
+	if err := c.ShouldBindQuery(&input); err != nil {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Warn("invalid_query_params: " + err.Error())
+		response.BadRequest(c, "Invalid query parameters")
+		return
+	}
+
+	result, err := h.getAllUseCase.Execute(c.Request.Context(), input)
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("get_todos_failed: " + err.Error())
 		response.HandleError(c, h.logger, err)
 		return
 	}
 
-	h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID"), "count": len(outputs)}).Info("todos_retrieved")
-	response.OK(c, outputs)
+	h.logger.WithFields(logrus.Fields{
+		"request_id": c.GetString("X-Request-ID"),
+		"count":      len(result.Data),
+		"page":       result.Pagination.Page,
+		"total":      result.Pagination.TotalItems,
+	}).Info("todos_retrieved")
+	response.OK(c, result)
 }
 
 func (h *TodoHandler) GetTodo(c *gin.Context) {
