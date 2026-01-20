@@ -26,13 +26,13 @@ func (m *MongoTodoRepository) Create(ctx context.Context, todo *entities.Todo) e
 	return err
 }
 
-func (m *MongoTodoRepository) Delete(ctx context.Context, id string) error {
+func (m *MongoTodoRepository) Delete(ctx context.Context, userID, id string) error {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return errs.New(errs.BadRequestError, "Invalid todo ID format")
 	}
 
-	result, err := m.collection.DeleteOne(ctx, bson.M{"_id": objID})
+	result, err := m.collection.DeleteOne(ctx, bson.M{"_id": objID, "user_id": userID})
 	if err != nil {
 		return errs.Wrap(err, errs.DatabaseError, "Failed to delete todo")
 	}
@@ -44,9 +44,12 @@ func (m *MongoTodoRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (m *MongoTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*entities.Todo, int64, error) {
-	// Get total count
-	totalCount, err := m.collection.CountDocuments(ctx, bson.M{})
+func (m *MongoTodoRepository) GetAll(ctx context.Context, userID string, page, limit int) ([]*entities.Todo, int64, error) {
+	// Filter by user ID
+	filter := bson.M{"user_id": userID}
+	
+	// Get total count for this user
+	totalCount, err := m.collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -59,7 +62,7 @@ func (m *MongoTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*e
 	findOptions.SetSkip(int64(skip))
 	findOptions.SetLimit(int64(limit))
 	
-	cursor, err := m.collection.Find(ctx, bson.M{}, findOptions)
+	cursor, err := m.collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -73,7 +76,7 @@ func (m *MongoTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*e
 	return todos, totalCount, nil
 }
 
-func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entities.Todo, error) {
+func (m *MongoTodoRepository) GetByID(ctx context.Context, userID, id string) (*entities.Todo, error) {
 	var todo entities.Todo
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -81,7 +84,7 @@ func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entities
 		return nil, errs.New(errs.BadRequestError, "Invalid todo ID format")
 	}
 
-	err = m.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&todo)
+	err = m.collection.FindOne(ctx, bson.M{"_id": objID, "user_id": userID}).Decode(&todo)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, errs.New(errs.NotFoundError, "Todo not found")
@@ -92,10 +95,10 @@ func (m *MongoTodoRepository) GetByID(ctx context.Context, id string) (*entities
 	return &todo, nil
 }
 
-func (m *MongoTodoRepository) Update(ctx context.Context, todo *entities.Todo) error {
+func (m *MongoTodoRepository) Update(ctx context.Context, userID string, todo *entities.Todo) error {
 	result, err := m.collection.ReplaceOne(
 		ctx,
-		bson.M{"_id": todo.ID},
+		bson.M{"_id": todo.ID, "user_id": userID},
 		todo,
 	)
 	if err != nil {

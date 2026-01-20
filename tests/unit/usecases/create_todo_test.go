@@ -16,7 +16,8 @@ func TestCreateTodoUseCase_Execute(t *testing.T) {
 		Description: "Test Description",
 	}
 
-	output, err := useCase.Execute(context.Background(), input)
+	userID := "test-user-id"
+	output, err := useCase.Execute(context.Background(), userID, input)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)

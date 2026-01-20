@@ -16,8 +16,8 @@ func NewGetTodoUseCase(repo repositories.TodoRepository) *GetTodoUseCase {
 	}
 }
 
-func (uc *GetTodoUseCase) Execute(ctx context.Context, input dto.GetTodoInput) (*dto.GetTodoOutput, error) {
-	todo, err := uc.repository.GetByID(ctx, input.ID)
+func (uc *GetTodoUseCase) Execute(ctx context.Context, userID string, input dto.GetTodoInput) (*dto.GetTodoOutput, error) {
+	todo, err := uc.repository.GetByID(ctx, userID, input.ID)
 	if err != nil {
 		return nil, err
 	}

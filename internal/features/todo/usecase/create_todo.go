@@ -20,9 +20,10 @@ func NewCreateTodoUseCase(repo repositories.TodoRepository) *CreateTodoUseCase {
 	}
 }
 
-func (uc *CreateTodoUseCase) Execute(ctx context.Context, input dto.CreateTodoInput) (*dto.CreateTodoOutput, error) {
+func (uc *CreateTodoUseCase) Execute(ctx context.Context, userID string, input dto.CreateTodoInput) (*dto.CreateTodoOutput, error) {
 	todo := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       input.Title,
 		Description: input.Description,
 		Completed:   false,

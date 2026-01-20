@@ -16,9 +16,12 @@ import (
 func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
+	userID := "test-user-id"
+
 	// Create test todos
 	todo1 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       "Todo 1",
 		Description: "Description 1",
 		Completed:   false,
@@ -28,6 +31,7 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 
 	todo2 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       "Todo 2",
 		Description: "Description 2",
 		Completed:   true,
@@ -39,7 +43,7 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo.Create(context.Background(), todo2)
 
 	useCase := usecase.NewGetAllTodosUseCase(repo)
-	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{
+	result, err := useCase.Execute(context.Background(), userID, dto.GetAllTodosInput{
 		PaginationInput: sharedDto.PaginationInput{
 			PageNum:  constants.DefaultPageNum,
 			PageSize: constants.DefaultPageSize,
@@ -73,7 +77,8 @@ func TestGetAllTodosUseCase_EmptyList(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewGetAllTodosUseCase(repo)
 
-	result, err := useCase.Execute(context.Background(), dto.GetAllTodosInput{
+	userID := "test-user-id"
+	result, err := useCase.Execute(context.Background(), userID, dto.GetAllTodosInput{
 		PaginationInput: sharedDto.PaginationInput{
 			PageNum:  constants.DefaultPageNum,
 			PageSize: constants.DefaultPageSize,

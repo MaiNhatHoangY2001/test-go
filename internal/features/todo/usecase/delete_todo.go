@@ -16,6 +16,6 @@ func NewDeleteTodoUseCase(repo repositories.TodoRepository) *DeleteTodoUseCase {
 	}
 }
 
-func (uc *DeleteTodoUseCase) Execute(ctx context.Context, input dto.DeleteTodoInput) error {
-	return uc.repository.Delete(ctx, input.ID)
+func (uc *DeleteTodoUseCase) Execute(ctx context.Context, userID string, input dto.DeleteTodoInput) error {
+	return uc.repository.Delete(ctx, userID, input.ID)
 }

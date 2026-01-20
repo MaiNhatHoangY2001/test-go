@@ -17,8 +17,8 @@ func NewUpdateTodoUseCase(repo repositories.TodoRepository) *UpdateTodoUseCase {
 	}
 }
 
-func (uc *UpdateTodoUseCase) Execute(ctx context.Context, input dto.UpdateTodoInput) (*dto.UpdateTodoOutput, error) {
-	existingTodo, err := uc.repository.GetByID(ctx, input.ID)
+func (uc *UpdateTodoUseCase) Execute(ctx context.Context, userID string, input dto.UpdateTodoInput) (*dto.UpdateTodoOutput, error) {
+	existingTodo, err := uc.repository.GetByID(ctx, userID, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (uc *UpdateTodoUseCase) Execute(ctx context.Context, input dto.UpdateTodoIn
 	existingTodo.Completed = input.Completed
 	existingTodo.UpdatedAt = time.Now()
 
-	if err := uc.repository.Update(ctx, existingTodo); err != nil {
+	if err := uc.repository.Update(ctx, userID, existingTodo); err != nil {
 		return nil, err
 	}
 

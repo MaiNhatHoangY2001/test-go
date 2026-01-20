@@ -18,7 +18,7 @@ repository: repo,
 }
 }
 
-func (uc *GetAllTodosUseCase) Execute(ctx context.Context, input dto.GetAllTodosInput) (*dto.GetAllTodosResponse, error) {
+func (uc *GetAllTodosUseCase) Execute(ctx context.Context, userID string, input dto.GetAllTodosInput) (*dto.GetAllTodosResponse, error) {
 	// Set default pagination values
 	pageNum := input.PageNum
 	if pageNum <= 0 {
@@ -29,7 +29,7 @@ func (uc *GetAllTodosUseCase) Execute(ctx context.Context, input dto.GetAllTodos
 		pageSize = constants.DefaultPageSize
 	}
 
-	todos, totalCount, err := uc.repository.GetAll(ctx, pageNum, pageSize)
+	todos, totalCount, err := uc.repository.GetAll(ctx, userID, pageNum, pageSize)
 	if err != nil {
 		return nil, err
 	}

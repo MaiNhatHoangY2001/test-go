@@ -8,6 +8,7 @@ import (
 
 type Todo struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	UserID      string             `bson:"user_id"`
 	Title       string             `bson:"title"`
 	Description string             `bson:"description"`
 	Completed   bool               `bson:"completed"`
