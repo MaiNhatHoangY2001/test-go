@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"net/http"
 	"strings"
 	"test-go/internal/shared/response"
 	"test-go/pkg/constants"
@@ -23,13 +22,7 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
-			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
-				Success: false,
-				Error: &response.ErrorInfo{
-					Code:    int64(constants.CodeUnauthorized),
-					Message: constants.MsgMissingAuthHeader,
-				},
-			})
+			response.UnauthorizedWithCode(ctx, int64(constants.CodeMissingAuthHeader), constants.MsgMissingAuthHeader)
 			ctx.Abort()
 			return
 		}
@@ -37,13 +30,7 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 		// Extract Bearer token
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		if tokenString == authHeader {
-			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
-				Success: false,
-				Error: &response.ErrorInfo{
-					Code:    int64(constants.CodeUnauthorized),
-					Message: constants.MsgInvalidAuthHeader,
-				},
-			})
+			response.UnauthorizedWithCode(ctx, int64(constants.CodeInvalidAuthHeader), constants.MsgInvalidAuthHeader)
 			ctx.Abort()
 			return
 		}
@@ -59,39 +46,21 @@ func AuthMiddleware(jwtSecret []byte) gin.HandlerFunc {
 
 		// Check if token is valid and extract claims
 		if err != nil || !token.Valid {
-			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
-				Success: false,
-				Error: &response.ErrorInfo{
-					Code:    int64(constants.CodeUnauthorized),
-					Message: constants.MsgInvalidToken,
-				},
-			})
+			response.UnauthorizedWithCode(ctx, int64(constants.CodeInvalidToken), constants.MsgInvalidToken)
 			ctx.Abort()
 			return
 		}
 
 		claims, ok := token.Claims.(*CustomClaims)
 		if !ok {
-			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
-				Success: false,
-				Error: &response.ErrorInfo{
-					Code:    int64(constants.CodeUnauthorized),
-					Message: constants.MsgInvalidTokenClaims,
-				},
-			})
+			response.UnauthorizedWithCode(ctx, int64(constants.CodeInvalidTokenClaims), constants.MsgInvalidTokenClaims)
 			ctx.Abort()
 			return
 		}
 
 		// Validate required claims
 		if claims.UserID == "" {
-			ctx.JSON(http.StatusUnauthorized, response.APIResponse{
-				Success: false,
-				Error: &response.ErrorInfo{
-					Code:    int64(constants.CodeUnauthorized),
-					Message: constants.MsgMissingUserID,
-				},
-			})
+			response.UnauthorizedWithCode(ctx, int64(constants.CodeMissingUserID), constants.MsgMissingUserID)
 			ctx.Abort()
 			return
 		}

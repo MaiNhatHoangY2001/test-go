@@ -34,10 +34,27 @@ func HandleError(c *gin.Context, logger *logrus.Logger, err error) {
 			"status":     statusCode,
 		}).Warn(appErr.Error())
 
+		// Map error type to unique error code
+		var errorCode int64
+		switch appErr.Code {
+		case errs.UnauthorizedError:
+			errorCode = int64(constants.CodeUnauthorized)
+		case errs.BadRequestError:
+			errorCode = int64(constants.CodeBadRequest)
+		case errs.NotFoundError:
+			errorCode = int64(constants.CodeNotFound)
+		case errs.ConflictError:
+			errorCode = int64(constants.CodeConflict)
+		case errs.ValidationError:
+			errorCode = int64(constants.CodeValidationError)
+		default:
+			errorCode = int64(constants.CodeInternalError)
+		}
+
 		c.JSON(statusCode, APIResponse{
 			Success: false,
 			Error: &ErrorInfo{
-				Code:    int64(statusCode),
+				Code:    errorCode,
 				Message: appErr.Message,
 			},
 		})
@@ -54,7 +71,7 @@ func HandleError(c *gin.Context, logger *logrus.Logger, err error) {
 	c.JSON(http.StatusInternalServerError, APIResponse{
 		Success: false,
 		Error: &ErrorInfo{
-			Code:    int64(http.StatusInternalServerError),
+			Code:    int64(constants.CodeInternalError),
 			Message: errs.ErrInternalError,
 		},
 	})

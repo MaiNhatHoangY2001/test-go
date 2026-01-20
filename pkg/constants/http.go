@@ -1,14 +1,31 @@
 package constants
 
-// HTTP error codes
+// Unique error codes for frontend i18n handling
+// These are random unique codes, not HTTP status codes
 const (
-	CodeUnauthorized       = 401
-	CodeBadRequest         = 400
-	CodeForbidden          = 403
-	CodeNotFound           = 404
-	CodeInternalError      = 500
-	CodeValidationError    = 422
-	CodeConflict           = 409
+	CodeUnauthorized       = 10001
+	CodeBadRequest         = 10002
+	CodeForbidden          = 10003
+	CodeNotFound           = 10004
+	CodeInternalError      = 10005
+	CodeValidationError    = 10006
+	CodeConflict           = 10007
+	CodeMissingAuthHeader  = 10008
+	CodeInvalidAuthHeader  = 10009
+	CodeInvalidToken       = 10010
+	CodeInvalidTokenClaims = 10011
+	CodeMissingUserID      = 10012
+)
+
+// HTTP status codes
+const (
+	StatusUnauthorized    = 401
+	StatusBadRequest      = 400
+	StatusForbidden       = 403
+	StatusNotFound        = 404
+	StatusInternalError   = 500
+	StatusValidationError = 422
+	StatusConflict        = 409
 )
 
 // HTTP error messages

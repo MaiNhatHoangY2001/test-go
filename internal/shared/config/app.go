@@ -17,6 +17,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -85,6 +87,9 @@ func NewApp(config *AppConfig) (*App, error) {
 	router.Use(middleware.RequestIDMiddleware())
 	router.Use(middleware.RequestLoggingMiddleware(appLogger))
 	router.Use(middleware.RecoveryMiddleware(appLogger))
+
+	// Swagger documentation route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Health check endpoint (no version required)
 	router.GET("/health", func(c *gin.Context) {
