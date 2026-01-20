@@ -3,13 +3,11 @@ package usecases
 import (
 	"context"
 	"test-go/internal/application/usecases"
-	"test-go/internal/infrastructure/repository"
 	"testing"
 )
 
 func TestCreateTodoUseCase_Execute(t *testing.T) {
-
-	repo := repository.NewInMemoryTodoRepository()
+	repo := NewMockTodoRepository()
 	useCase := usecases.NewCreateTodoUseCase(repo)
 
 	input := usecases.CreateTodoInput{
@@ -31,7 +29,7 @@ func TestCreateTodoUseCase_Execute(t *testing.T) {
 		t.Errorf("Expected description %s, got %s", input.Description, output.Description)
 	}
 
-	if output.ID == "" {
+	if output.ID.IsZero() {
 		t.Error("Expected ID to be set")
 	}
 

@@ -4,16 +4,18 @@ import (
 	"context"
 	"test-go/internal/application/usecases"
 	"test-go/internal/domain/entities"
-	"test-go/internal/infrastructure/repository"
 	"testing"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestGetTodoUseCase_Execute(t *testing.T) {
-	repo := repository.NewInMemoryTodoRepository()
+	repo := NewMockTodoRepository()
 
+	testID := primitive.NewObjectID()
 	todo := &entities.Todo{
-		ID:          "test-id",
+		ID:          testID,
 		Title:       "Test todo",
 		Description: "Test",
 		Completed:   false,
@@ -23,7 +25,7 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 	repo.Create(context.Background(), todo)
 
 	useCase := usecases.NewGetTodoUseCase(repo)
-	input := usecases.GetTodoInput{ID: "test-id"}
+	input := usecases.GetTodoInput{ID: testID.Hex()}
 
 	output, err := useCase.Execute(context.Background(), input)
 
@@ -31,17 +33,17 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if output.ID != "test-id" {
-		t.Errorf("Expected ID test-id, got %s", output.ID)
+	if output.ID != testID {
+		t.Errorf("Expected ID %s, got %s", testID.Hex(), output.ID.Hex())
 	}
 
 	if output.Title != "Test todo" {
-		t.Errorf("Expected title Test Todo, got %s", output.Title)
+		t.Errorf("Expected title Test todo, got %s", output.Title)
 	}
 }
 
 func TestGetTodoUseCase_NotFound(t *testing.T) {
-	repo := repository.NewInMemoryTodoRepository()
+	repo := NewMockTodoRepository()
 	useCase := usecases.NewGetTodoUseCase(repo)
 	input := usecases.GetTodoInput{ID: "nonexistent"}
 	output, err := useCase.Execute(context.Background(), input)

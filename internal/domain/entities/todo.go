@@ -7,7 +7,7 @@ import (
 )
 
 type Todo struct {
-	ID          primitive.ObjectID `bson:"_id, omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
 	Title       string             `bson:"title"`
 	Description string             `bson:"description"`
 	Completed   bool               `bson:"completed"`
