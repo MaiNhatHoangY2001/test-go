@@ -45,25 +45,14 @@ func (m *MongoTodoRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (m *MongoTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*entities.Todo, int64, error) {
-	// Default values for pagination
-	if page <= 0 {
-		page = 1
-	}
-	if limit <= 0 {
-		limit = 10
-	}
-	if limit > 100 {
-		limit = 100
-	}
-
-	// Calculate skip value
-	skip := (page - 1) * limit
-
 	// Get total count
 	totalCount, err := m.collection.CountDocuments(ctx, bson.M{})
 	if err != nil {
 		return nil, 0, err
 	}
+
+	// Calculate skip value
+	skip := (page - 1) * limit
 
 	// Find with pagination
 	findOptions := options.Find()

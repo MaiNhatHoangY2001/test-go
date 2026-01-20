@@ -44,14 +44,14 @@ func (m *MockTodoRepository) GetAll(ctx context.Context, page, limit int) ([]*en
 	}
 	totalCount := int64(len(todos))
 	
-	// Apply pagination
+	// Apply pagination using totalCount for boundary checking
 	start := (page - 1) * limit
 	end := start + limit
-	if start > len(todos) {
+	if start > int(totalCount) {
 		return []*entities.Todo{}, totalCount, nil
 	}
-	if end > len(todos) {
-		end = len(todos)
+	if end > int(totalCount) {
+		end = int(totalCount)
 	}
 	
 	return todos[start:end], totalCount, nil
