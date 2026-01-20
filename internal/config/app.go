@@ -5,7 +5,6 @@ import (
 	"test-go/internal/api/handlers"
 	"test-go/internal/api/routes"
 	"test-go/internal/application/usecases"
-	"test-go/internal/domain/repositories"
 	"test-go/internal/infrastructure/database/mongodb"
 	"test-go/internal/infrastructure/repository"
 
@@ -17,25 +16,18 @@ type App struct {
 }
 
 type AppConfig struct {
-	UseDatabase    bool
 	MongoURI       string
 	DatabaseName   string
 	CollectionName string
 }
 
 func NewApp(config *AppConfig) (*App, error) {
-	var repo repositories.TodoRepository
-
-	if config.UseDatabase {
-		client, err := mongodb.NewMongoClient(context.Background(), config.MongoURI)
-		if err != nil {
-			return nil, err
-		}
-		collection := client.Database(config.DatabaseName).Collection(config.CollectionName)
-		repo = repository.NewMongoTodoRepository(collection)
-	} else {
-		repo = repository.NewInMemoryTodoRepository()
+	client, err := mongodb.NewMongoClient(context.Background(), config.MongoURI)
+	if err != nil {
+		return nil, err
 	}
+	collection := client.Database(config.DatabaseName).Collection(config.CollectionName)
+	repo := repository.NewMongoTodoRepository(collection)
 
 	createUseCase := usecases.NewCreateTodoUseCase(repo)
 	getTodoUseCase := usecases.NewGetTodoUseCase(repo)

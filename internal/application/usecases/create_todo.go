@@ -48,7 +48,7 @@ func (uc *CreateTodoUseCase) Execute(ctx context.Context, input CreateTodoInput)
 	}
 
 	return &CreateTodoOutput{
-		ID:          primitive.NewObjectID(),
+		ID:          todo.ID,
 		Title:       todo.Title,
 		Description: todo.Description,
 		Completed:   todo.Completed,
