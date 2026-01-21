@@ -3,6 +3,8 @@ package dto
 import (
 	"time"
 
+	sharedDto "test-go/internal/shared/dto"
+
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -33,6 +35,10 @@ type GetTodoOutput struct {
 	UpdatedAt   time.Time          `json:"updated_at"`
 }
 
+type GetAllTodosInput struct {
+	sharedDto.PaginationInput
+}
+
 type GetAllTodosOutput struct {
 	ID          primitive.ObjectID `json:"id"`
 	Title       string             `json:"title"`
@@ -40,6 +46,11 @@ type GetAllTodosOutput struct {
 	Completed   bool               `json:"completed"`
 	CreatedAt   time.Time          `json:"created_at"`
 	UpdatedAt   time.Time          `json:"updated_at"`
+}
+
+type GetAllTodosResponse struct {
+	Data       []GetAllTodosOutput    `json:"data"`
+	Pagination sharedDto.PaginationInfo `json:"pagination"`
 }
 
 type UpdateTodoInput struct {

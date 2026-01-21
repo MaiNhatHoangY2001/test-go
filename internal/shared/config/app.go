@@ -17,6 +17,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -29,6 +31,7 @@ type AppConfig struct {
 	MongoURI       string
 	DatabaseName   string
 	CollectionName string
+	JWTSecret      []byte
 }
 
 func NewApp(config *AppConfig) (*App, error) {
@@ -39,8 +42,18 @@ func NewApp(config *AppConfig) (*App, error) {
 		return nil, err
 	}
 
+	// Get database reference
+	db := client.Database(config.DatabaseName)
+
+	// Ensure indexes are created
+	if err := mongodb.EnsureIndexes(context.Background(), db); err != nil {
+		appLogger.WithError(err).Warn("Failed to create database indexes (non-fatal)")
+	} else {
+		appLogger.Info("Database indexes created successfully")
+	}
+
 	// Initialize repositories
-	todoCollection := client.Database(config.DatabaseName).Collection(config.CollectionName)
+	todoCollection := db.Collection(config.CollectionName)
 	todoRepo := infraRepository.NewMongoTodoRepository(todoCollection)
 
 	// Initialize todo use cases
@@ -60,7 +73,7 @@ func NewApp(config *AppConfig) (*App, error) {
 	)
 
 	// Initialize auth repositories and use cases
-	userCollection := client.Database(config.DatabaseName).Collection("users")
+	userCollection := db.Collection("users")
 	userRepo := infraRepository.NewMongoUserRepository(userCollection)
 
 	signUpUseCase := authUsecase.NewSignUpUseCase(userRepo)
@@ -74,6 +87,9 @@ func NewApp(config *AppConfig) (*App, error) {
 	router.Use(middleware.RequestIDMiddleware())
 	router.Use(middleware.RequestLoggingMiddleware(appLogger))
 	router.Use(middleware.RecoveryMiddleware(appLogger))
+
+	// Swagger documentation route
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Health check endpoint (no version required)
 	router.GET("/health", func(c *gin.Context) {
@@ -95,7 +111,7 @@ func NewApp(config *AppConfig) (*App, error) {
 	// Setup versioned routes
 	v1 := router.Group("/api/v1")
 	{
-		routes.SetupTodoRoutes(v1, todoHandlers)
+		routes.SetupTodoRoutes(v1, todoHandlers, config.JWTSecret)
 		authRoutes.SetupAuthRoutes(v1, authHandler)
 	}
 

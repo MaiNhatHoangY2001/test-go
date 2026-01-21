@@ -2,18 +2,18 @@ package usecase
 
 import (
 	"context"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/auth/dto"
-	"test-go/internal/features/auth/repository"
 	errs "test-go/internal/shared/errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginUseCase struct {
-	userRepo repository.UserRepository
+	userRepo repositories.UserRepository
 }
 
-func NewLoginUseCase(userRepo repository.UserRepository) *LoginUseCase {
+func NewLoginUseCase(userRepo repositories.UserRepository) *LoginUseCase {
 	return &LoginUseCase{
 		userRepo: userRepo,
 	}

@@ -2,33 +2,25 @@ package usecase
 
 import (
 	"context"
-	"strings"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
-	"test-go/internal/features/todo/repository"
-	errs "test-go/internal/shared/errors"
 	"time"
 )
 
 type UpdateTodoUseCase struct {
-	repository repository.TodoRepository
+	repository repositories.TodoRepository
 }
 
-func NewUpdateTodoUseCase(repo repository.TodoRepository) *UpdateTodoUseCase {
+func NewUpdateTodoUseCase(repo repositories.TodoRepository) *UpdateTodoUseCase {
 	return &UpdateTodoUseCase{
 		repository: repo,
 	}
 }
 
-func (uc *UpdateTodoUseCase) Execute(ctx context.Context, input dto.UpdateTodoInput) (*dto.UpdateTodoOutput, error) {
-	existingTodo, err := uc.repository.GetByID(ctx, input.ID)
+func (uc *UpdateTodoUseCase) Execute(ctx context.Context, userID string, input dto.UpdateTodoInput) (*dto.UpdateTodoOutput, error) {
+	existingTodo, err := uc.repository.GetByID(ctx, userID, input.ID)
 	if err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return nil, errs.New(errs.NotFoundError, "Todo not found")
-		}
-		if strings.Contains(err.Error(), "invalid id") {
-			return nil, errs.New(errs.BadRequestError, "Invalid todo ID format")
-		}
-		return nil, errs.Wrap(err, errs.DatabaseError, "Failed to retrieve todo")
+		return nil, err
 	}
 
 	existingTodo.Title = input.Title
@@ -36,11 +28,8 @@ func (uc *UpdateTodoUseCase) Execute(ctx context.Context, input dto.UpdateTodoIn
 	existingTodo.Completed = input.Completed
 	existingTodo.UpdatedAt = time.Now()
 
-	if err := uc.repository.Update(ctx, existingTodo); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return nil, errs.New(errs.NotFoundError, "Todo not found")
-		}
-		return nil, errs.Wrap(err, errs.DatabaseError, "Failed to update todo")
+	if err := uc.repository.Update(ctx, userID, existingTodo); err != nil {
+		return nil, err
 	}
 
 	return &dto.UpdateTodoOutput{

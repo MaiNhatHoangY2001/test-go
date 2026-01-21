@@ -36,7 +36,28 @@ func NewTodoHandler(
 	}
 }
 
+// CreateTodo godoc
+// @Summary Create a new todo
+// @Description Create a new todo for the authenticated user
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Param todo body dto.CreateTodoInput true "Todo object"
+// @Success 201 {object} response.APIResponse{data=dto.CreateTodoOutput} "Successfully created"
+// @Failure 400 {object} response.APIResponse{error=response.ErrorInfo} "Bad request"
+// @Failure 401 {object} response.APIResponse{error=response.ErrorInfo} "Unauthorized"
+// @Failure 500 {object} response.APIResponse{error=response.ErrorInfo} "Internal server error"
+// @Security BearerAuth
+// @Router /todos [post]
 func (h *TodoHandler) CreateTodo(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("user_id_not_found_in_context")
+		response.Unauthorized(c, "Unauthorized")
+		return
+	}
+
 	var input dto.CreateTodoInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -45,7 +66,7 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 		return
 	}
 
-	output, err := h.createUseCase.Execute(c.Request.Context(), input)
+	output, err := h.createUseCase.Execute(c.Request.Context(), userID.(string), input)
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("create_todo_failed: " + err.Error())
 		response.HandleError(c, h.logger, err)
@@ -56,22 +77,71 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 	response.Created(c, output)
 }
 
+// GetAllTodos godoc
+// @Summary Get all todos
+// @Description Get all todos for the authenticated user with pagination
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Page size" default(10)
+// @Success 200 {object} response.PagingResponse{data=response.PagingData{data=[]dto.GetAllTodosOutput}} "Successfully retrieved"
+// @Failure 400 {object} response.APIResponse{error=response.ErrorInfo} "Bad request"
+// @Failure 401 {object} response.APIResponse{error=response.ErrorInfo} "Unauthorized"
+// @Failure 500 {object} response.APIResponse{error=response.ErrorInfo} "Internal server error"
+// @Security BearerAuth
+// @Router /todos [get]
 func (h *TodoHandler) GetAllTodos(c *gin.Context) {
-	outputs, err := h.getAllUseCase.Execute(c.Request.Context())
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("user_id_not_found_in_context")
+		response.Unauthorized(c, "Unauthorized")
+		return
+	}
+
+	var input dto.GetAllTodosInput
+	if err := c.ShouldBindQuery(&input); err != nil {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Warn("invalid_query_params: " + err.Error())
+		response.BadRequest(c, "Invalid query parameters")
+		return
+	}
+
+	result, err := h.getAllUseCase.Execute(c.Request.Context(), userID.(string), input)
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("get_todos_failed: " + err.Error())
 		response.HandleError(c, h.logger, err)
 		return
 	}
 
-	h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID"), "count": len(outputs)}).Info("todos_retrieved")
-	response.OK(c, outputs)
+	h.logger.WithFields(logrus.Fields{
+		"request_id": c.GetString("X-Request-ID"),
+		"count":      len(result.Data),
+		"page":       result.Pagination.PageNum,
+		"total":      result.Pagination.TotalItems,
+	}).Info("todos_retrieved")
+	
+	// Use paging response format
+	response.SuccessPaging(c, 
+		int64(result.Pagination.PageNum),
+		int64(result.Pagination.PageSize),
+		result.Pagination.TotalItems,
+		result.Data,
+	)
 }
 
 func (h *TodoHandler) GetTodo(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("user_id_not_found_in_context")
+		response.Unauthorized(c, "Unauthorized")
+		return
+	}
+
 	id := c.Param("id")
 
-	output, err := h.getTodoUseCase.Execute(c.Request.Context(), dto.GetTodoInput{ID: id})
+	output, err := h.getTodoUseCase.Execute(c.Request.Context(), userID.(string), dto.GetTodoInput{ID: id})
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID"), "todo_id": id}).Warn("todo_not_found: " + err.Error())
 		response.HandleError(c, h.logger, err)
@@ -83,6 +153,14 @@ func (h *TodoHandler) GetTodo(c *gin.Context) {
 }
 
 func (h *TodoHandler) UpdateTodo(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("user_id_not_found_in_context")
+		response.Unauthorized(c, "Unauthorized")
+		return
+	}
+
 	id := c.Param("id")
 	var input dto.UpdateTodoInput
 
@@ -93,7 +171,7 @@ func (h *TodoHandler) UpdateTodo(c *gin.Context) {
 	}
 
 	input.ID = id
-	output, err := h.updateUseCase.Execute(c.Request.Context(), input)
+	output, err := h.updateUseCase.Execute(c.Request.Context(), userID.(string), input)
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID"), "todo_id": id}).Error("update_todo_failed: " + err.Error())
 		response.HandleError(c, h.logger, err)
@@ -105,8 +183,16 @@ func (h *TodoHandler) UpdateTodo(c *gin.Context) {
 }
 
 func (h *TodoHandler) DeleteTodo(c *gin.Context) {
+	// Get user ID from context (set by auth middleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID")}).Error("user_id_not_found_in_context")
+		response.Unauthorized(c, "Unauthorized")
+		return
+	}
+
 	id := c.Param("id")
-	err := h.deleteUseCase.Execute(c.Request.Context(), dto.DeleteTodoInput{ID: id})
+	err := h.deleteUseCase.Execute(c.Request.Context(), userID.(string), dto.DeleteTodoInput{ID: id})
 	if err != nil {
 		h.logger.WithFields(logrus.Fields{"request_id": c.GetString("X-Request-ID"), "todo_id": id}).Error("delete_todo_failed: " + err.Error())
 		response.HandleError(c, h.logger, err)

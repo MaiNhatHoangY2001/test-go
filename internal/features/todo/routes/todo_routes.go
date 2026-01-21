@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupTodoRoutes(router gin.IRouter, handler *handler.TodoHandler) {
+func SetupTodoRoutes(router gin.IRouter, handler *handler.TodoHandler, jwtSecret []byte) {
 	todoGroup := router.Group("/todos")
-	todoGroup.Use(middleware.AuthMiddleware())
+	todoGroup.Use(middleware.AuthMiddleware(jwtSecret))
 	{
 		todoGroup.POST("", handler.CreateTodo)
 		todoGroup.GET("", handler.GetAllTodos)

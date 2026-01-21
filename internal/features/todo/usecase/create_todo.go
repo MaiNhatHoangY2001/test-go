@@ -3,26 +3,27 @@ package usecase
 import (
 	"context"
 	"test-go/internal/domain/entities"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/todo/dto"
-	"test-go/internal/features/todo/repository"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CreateTodoUseCase struct {
-	repository repository.TodoRepository
+	repository repositories.TodoRepository
 }
 
-func NewCreateTodoUseCase(repo repository.TodoRepository) *CreateTodoUseCase {
+func NewCreateTodoUseCase(repo repositories.TodoRepository) *CreateTodoUseCase {
 	return &CreateTodoUseCase{
 		repository: repo,
 	}
 }
 
-func (uc *CreateTodoUseCase) Execute(ctx context.Context, input dto.CreateTodoInput) (*dto.CreateTodoOutput, error) {
+func (uc *CreateTodoUseCase) Execute(ctx context.Context, userID string, input dto.CreateTodoInput) (*dto.CreateTodoOutput, error) {
 	todo := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       input.Title,
 		Description: input.Description,
 		Completed:   false,

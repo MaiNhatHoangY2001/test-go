@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 	"test-go/internal/domain/entities"
+	"test-go/internal/domain/repositories"
 	"test-go/internal/features/auth/dto"
-	"test-go/internal/features/auth/repository"
 	errs "test-go/internal/shared/errors"
 	"time"
 
@@ -13,10 +13,10 @@ import (
 )
 
 type SignUpUseCase struct {
-	userRepo repository.UserRepository
+	userRepo repositories.UserRepository
 }
 
-func NewSignUpUseCase(userRepo repository.UserRepository) *SignUpUseCase {
+func NewSignUpUseCase(userRepo repositories.UserRepository) *SignUpUseCase {
 	return &SignUpUseCase{
 		userRepo: userRepo,
 	}
