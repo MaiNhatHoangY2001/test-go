@@ -2,8 +2,11 @@ package usecases
 
 import (
 	"context"
+	"test-go/internal/domain/entities"
+	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
-	"test-go/internal/features/todo/entity"
+	sharedDto "test-go/internal/shared/dto"
+	"test-go/pkg/constants"
 	"testing"
 	"time"
 
@@ -13,9 +16,12 @@ import (
 func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
+	userID := "test-user-id"
+
 	// Create test todos
-	todo1 := &entity.Todo{
+	todo1 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       "Todo 1",
 		Description: "Description 1",
 		Completed:   false,
@@ -23,8 +29,9 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 		UpdatedAt:   time.Now(),
 	}
 
-	todo2 := &entity.Todo{
+	todo2 := &entities.Todo{
 		ID:          primitive.NewObjectID(),
+		UserID:      userID,
 		Title:       "Todo 2",
 		Description: "Description 2",
 		Completed:   true,
@@ -36,19 +43,24 @@ func TestGetAllTodosUseCase_Execute(t *testing.T) {
 	repo.Create(context.Background(), todo2)
 
 	useCase := usecase.NewGetAllTodosUseCase(repo)
-	outputs, err := useCase.Execute(context.Background())
+	result, err := useCase.Execute(context.Background(), userID, dto.GetAllTodosInput{
+		PaginationInput: sharedDto.PaginationInput{
+			PageNum:  constants.DefaultPageNum,
+			PageSize: constants.DefaultPageSize,
+		},
+	})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if len(outputs) != 2 {
-		t.Errorf("Expected 2 todos, got %d", len(outputs))
+	if len(result.Data) != 2 {
+		t.Errorf("Expected 2 todos, got %d", len(result.Data))
 	}
 
 	// Verify both todos are present (order may vary due to map iteration)
 	titles := make(map[string]bool)
-	for _, output := range outputs {
+	for _, output := range result.Data {
 		titles[output.Title] = true
 	}
 
@@ -65,13 +77,19 @@ func TestGetAllTodosUseCase_EmptyList(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewGetAllTodosUseCase(repo)
 
-	outputs, err := useCase.Execute(context.Background())
+	userID := "test-user-id"
+	result, err := useCase.Execute(context.Background(), userID, dto.GetAllTodosInput{
+		PaginationInput: sharedDto.PaginationInput{
+			PageNum:  constants.DefaultPageNum,
+			PageSize: constants.DefaultPageSize,
+		},
+	})
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if len(outputs) != 0 {
-		t.Errorf("Expected 0 todos, got %d", len(outputs))
+	if len(result.Data) != 0 {
+		t.Errorf("Expected 0 todos, got %d", len(result.Data))
 	}
 }

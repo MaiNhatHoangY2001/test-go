@@ -14,6 +14,7 @@ import (
 	"test-go/internal/infrastructure/database/mongodb"
 	"test-go/internal/shared/config"
 
+	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -27,6 +28,9 @@ type APITestSuite struct {
 }
 
 func (suite *APITestSuite) SetupSuite() {
+	// Load environment variables from .env file
+	_ = godotenv.Load("../../.env")
+
 	mongoURI := os.Getenv("MONGO_URI")
 	if mongoURI == "" {
 		mongoURI = "mongodb://localhost:27017"
@@ -64,16 +68,54 @@ func (suite *APITestSuite) CleanupCollections() {
 	db.Collection("users").DeleteMany(ctx, map[string]interface{}{})
 }
 
+// Helper method to create a user and get authentication token
+func (suite *APITestSuite) GetAuthToken(email, password, name string) string {
+	// Sign up
+	signUpReq := dto.SignUpRequest{
+		Email:    email,
+		Password: password,
+		Name:     name,
+	}
+	body, _ := json.Marshal(signUpReq)
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/signup", bytes.NewBuffer(body))
+	request.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	suite.app.Router.ServeHTTP(w, request)
+
+	// Login
+	loginReq := dto.LoginRequest{
+		Email:    email,
+		Password: password,
+	}
+	body, _ = json.Marshal(loginReq)
+	request = httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(body))
+	request.Header.Set("Content-Type", "application/json")
+	w = httptest.NewRecorder()
+	suite.app.Router.ServeHTTP(w, request)
+
+	var response map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &response)
+
+	// Extract token from response
+	if data, ok := response["data"].(map[string]interface{}); ok {
+		if token, ok := data["token"].(string); ok {
+			return token
+		}
+	}
+	return ""
+}
+
 func (suite *APITestSuite) TestSignUpSuccess() {
 	suite.CleanupCollections()
 
 	req := dto.SignUpRequest{
 		Email:    "test@example.com",
 		Password: "SecurePassword123",
+		Name:     "Test User",
 	}
 
 	body, _ := json.Marshal(req)
-	request := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBuffer(body))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/signup", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -93,10 +135,11 @@ func (suite *APITestSuite) TestSignUpInvalidEmail() {
 	req := dto.SignUpRequest{
 		Email:    "invalid-email",
 		Password: "SecurePassword123",
+		Name:     "Test User",
 	}
 
 	body, _ := json.Marshal(req)
-	request := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBuffer(body))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/signup", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -111,10 +154,11 @@ func (suite *APITestSuite) TestSignUpWeakPassword() {
 	req := dto.SignUpRequest{
 		Email:    "test@example.com",
 		Password: "weak",
+		Name:     "Test User",
 	}
 
 	body, _ := json.Marshal(req)
-	request := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBuffer(body))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/signup", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -129,9 +173,10 @@ func (suite *APITestSuite) TestLoginSuccess() {
 	signUpReq := dto.SignUpRequest{
 		Email:    "login@example.com",
 		Password: "SecurePassword123",
+		Name:     "Login User",
 	}
 	body, _ := json.Marshal(signUpReq)
-	request := httptest.NewRequest(http.MethodPost, "/auth/signup", bytes.NewBuffer(body))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/signup", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	suite.app.Router.ServeHTTP(w, request)
@@ -141,7 +186,7 @@ func (suite *APITestSuite) TestLoginSuccess() {
 		Password: "SecurePassword123",
 	}
 	body, _ = json.Marshal(loginReq)
-	request = httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(body))
+	request = httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 
@@ -163,7 +208,7 @@ func (suite *APITestSuite) TestLoginInvalidCredentials() {
 		Password: "WrongPassword123",
 	}
 	body, _ := json.Marshal(loginReq)
-	request := httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(body))
+	request := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", bytes.NewBuffer(body))
 	request.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 
@@ -173,7 +218,7 @@ func (suite *APITestSuite) TestLoginInvalidCredentials() {
 }
 
 func (suite *APITestSuite) TestRequestIDMiddleware() {
-	request := httptest.NewRequest(http.MethodGet, "/todos", nil)
+	request := httptest.NewRequest(http.MethodGet, "/api/v1/todos", nil)
 	w := httptest.NewRecorder()
 
 	suite.app.Router.ServeHTTP(w, request)

@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
+	"test-go/internal/domain/entities"
 	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
-	"test-go/internal/features/todo/entity"
 	"testing"
 	"time"
 
@@ -14,9 +14,11 @@ import (
 func TestGetTodoUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
+	userID := "test-user-id"
 	testID := primitive.NewObjectID()
-	todo := &entity.Todo{
+	todo := &entities.Todo{
 		ID:          testID,
+		UserID:      userID,
 		Title:       "Test todo",
 		Description: "Test",
 		Completed:   false,
@@ -28,7 +30,7 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 	useCase := usecase.NewGetTodoUseCase(repo)
 	input := dto.GetTodoInput{ID: testID.Hex()}
 
-	output, err := useCase.Execute(context.Background(), input)
+	output, err := useCase.Execute(context.Background(), userID, input)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -47,7 +49,8 @@ func TestGetTodoUseCase_NotFound(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewGetTodoUseCase(repo)
 	input := dto.GetTodoInput{ID: "nonexistent"}
-	output, err := useCase.Execute(context.Background(), input)
+	userID := "test-user-id"
+	output, err := useCase.Execute(context.Background(), userID, input)
 
 	if err == nil {
 		t.Fatal("Expected error, got nil")

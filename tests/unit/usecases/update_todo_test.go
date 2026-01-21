@@ -2,9 +2,9 @@ package usecases
 
 import (
 	"context"
+	"test-go/internal/domain/entities"
 	"test-go/internal/features/todo/dto"
 	"test-go/internal/features/todo/usecase"
-	"test-go/internal/features/todo/entity"
 	"testing"
 	"time"
 
@@ -14,9 +14,11 @@ import (
 func TestUpdateTodoUseCase_Execute(t *testing.T) {
 	repo := NewMockTodoRepository()
 
+	userID := "test-user-id"
 	testID := primitive.NewObjectID()
-	todo := &entity.Todo{
+	todo := &entities.Todo{
 		ID:          testID,
+		UserID:      userID,
 		Title:       "Original title",
 		Description: "Original description",
 		Completed:   false,
@@ -33,7 +35,7 @@ func TestUpdateTodoUseCase_Execute(t *testing.T) {
 		Completed:   true,
 	}
 
-	output, err := useCase.Execute(context.Background(), input)
+	output, err := useCase.Execute(context.Background(), userID, input)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
@@ -59,12 +61,13 @@ func TestUpdateTodoUseCase_Execute(t *testing.T) {
 func TestUpdateTodoUseCase_NotFound(t *testing.T) {
 	repo := NewMockTodoRepository()
 	useCase := usecase.NewUpdateTodoUseCase(repo)
+	userID := "test-user-id"
 	input := dto.UpdateTodoInput{
 		ID:    "nonexistent",
 		Title: "Updated title",
 	}
 
-	output, err := useCase.Execute(context.Background(), input)
+	output, err := useCase.Execute(context.Background(), userID, input)
 
 	if err == nil {
 		t.Fatal("Expected error for nonexistent todo, got nil")
