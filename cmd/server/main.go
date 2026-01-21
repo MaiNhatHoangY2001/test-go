@@ -8,25 +8,28 @@ import (
 	_ "test-go/docs" // Swagger docs
 )
 
-// @title Todo API
-// @version 1.0
-// @description This is a production-ready Todo API with user authentication and pagination
-// @termsOfService http://swagger.io/terms/
+// gin-swagger middleware
+// swagger embed files
 
-// @contact.name API Support
-// @contact.email support@todoapi.com
+//	@title			Swagger Example API
+//	@version		1.0
+//	@description	This is a sample server celler server.
+//	@termsOfService	http://swagger.io/terms/
 
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
 
-// @host localhost:8080
-// @BasePath /api/v1
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
-// @description Type "Bearer" followed by a space and JWT token.
+//	@host		localhost:8080
+//	@BasePath	/api/v1
 
+//	@securityDefinitions.basic	BasicAuth
+
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
 	log := logger.InitLogger()
 
@@ -36,7 +39,7 @@ func main() {
 	if jwtSecret == "" {
 		log.Fatal("JWT_SECRET environment variable is required")
 	}
-	
+
 	jwtSecretBytes := []byte(jwtSecret)
 	usecase.SetJWTSecretForUsecases(jwtSecretBytes)
 

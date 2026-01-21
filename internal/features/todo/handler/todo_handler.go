@@ -37,18 +37,19 @@ func NewTodoHandler(
 }
 
 // CreateTodo godoc
-// @Summary Create a new todo
-// @Description Create a new todo for the authenticated user
-// @Tags todos
-// @Accept json
-// @Produce json
-// @Param todo body dto.CreateTodoInput true "Todo object"
-// @Success 201 {object} response.APIResponse{data=dto.CreateTodoOutput} "Successfully created"
-// @Failure 400 {object} response.APIResponse{error=response.ErrorInfo} "Bad request"
-// @Failure 401 {object} response.APIResponse{error=response.ErrorInfo} "Unauthorized"
-// @Failure 500 {object} response.APIResponse{error=response.ErrorInfo} "Internal server error"
-// @Security BearerAuth
-// @Router /todos [post]
+//
+//	@Summary		Create a new todo
+//	@Description	Create a new todo for the authenticated user
+//	@Tags			todos
+//	@Accept			json
+//	@Produce		json
+//	@Param			todo	body		dto.CreateTodoInput								true	"Todo object"
+//	@Success		201		{object}	response.APIResponse{data=dto.CreateTodoOutput}	"Successfully created"
+//	@Failure		400		{object}	response.APIResponse{error=response.ErrorInfo}	"Bad request"
+//	@Failure		401		{object}	response.APIResponse{error=response.ErrorInfo}	"Unauthorized"
+//	@Failure		500		{object}	response.APIResponse{error=response.ErrorInfo}	"Internal server error"
+//	@Security		BearerAuth
+//	@Router			/todos [post]
 func (h *TodoHandler) CreateTodo(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
@@ -78,19 +79,17 @@ func (h *TodoHandler) CreateTodo(c *gin.Context) {
 }
 
 // GetAllTodos godoc
-// @Summary Get all todos
-// @Description Get all todos for the authenticated user with pagination
-// @Tags todos
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number" default(1)
-// @Param limit query int false "Page size" default(10)
-// @Success 200 {object} response.PagingResponse{data=response.PagingData{data=[]dto.GetAllTodosOutput}} "Successfully retrieved"
-// @Failure 400 {object} response.APIResponse{error=response.ErrorInfo} "Bad request"
-// @Failure 401 {object} response.APIResponse{error=response.ErrorInfo} "Unauthorized"
-// @Failure 500 {object} response.APIResponse{error=response.ErrorInfo} "Internal server error"
-// @Security BearerAuth
-// @Router /todos [get]
+//
+//	@Summary		Get all todos
+//	@Description	Get all todos for the authenticated user with pagination
+//	@Tags			todos
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	query		int																				false	"Page number"	default(1)
+//	@Param			limit	query		int																				false	"Page size"		default(10)
+//	@Success		200		{object}	response.PagingResponse{data=response.PagingData{data=[]dto.GetAllTodosOutput}}	"Successfully retrieved"
+//	@Security		BearerAuth
+//	@Router			/todos [get]
 func (h *TodoHandler) GetAllTodos(c *gin.Context) {
 	// Get user ID from context (set by auth middleware)
 	userID, exists := c.Get("user_id")
@@ -120,9 +119,9 @@ func (h *TodoHandler) GetAllTodos(c *gin.Context) {
 		"page":       result.Pagination.PageNum,
 		"total":      result.Pagination.TotalItems,
 	}).Info("todos_retrieved")
-	
+
 	// Use paging response format
-	response.SuccessPaging(c, 
+	response.SuccessPaging(c,
 		int64(result.Pagination.PageNum),
 		int64(result.Pagination.PageSize),
 		result.Pagination.TotalItems,

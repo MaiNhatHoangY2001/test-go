@@ -47,7 +47,7 @@ func (m *MongoTodoRepository) Delete(ctx context.Context, userID, id string) err
 func (m *MongoTodoRepository) GetAll(ctx context.Context, userID string, page, limit int) ([]*entities.Todo, int64, error) {
 	// Filter by user ID
 	filter := bson.M{"user_id": userID}
-	
+
 	// Get total count for this user
 	totalCount, err := m.collection.CountDocuments(ctx, filter)
 	if err != nil {
@@ -61,7 +61,7 @@ func (m *MongoTodoRepository) GetAll(ctx context.Context, userID string, page, l
 	findOptions := options.Find()
 	findOptions.SetSkip(int64(skip))
 	findOptions.SetLimit(int64(limit))
-	
+
 	cursor, err := m.collection.Find(ctx, filter, findOptions)
 	if err != nil {
 		return nil, 0, err
@@ -104,10 +104,10 @@ func (m *MongoTodoRepository) Update(ctx context.Context, userID string, todo *e
 	if err != nil {
 		return errs.Wrap(err, errs.DatabaseError, "Failed to update todo")
 	}
-	
+
 	if result.MatchedCount == 0 {
 		return errs.New(errs.NotFoundError, "Todo not found")
 	}
-	
+
 	return nil
 }

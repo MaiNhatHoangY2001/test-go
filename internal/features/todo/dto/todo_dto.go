@@ -49,7 +49,7 @@ type GetAllTodosOutput struct {
 }
 
 type GetAllTodosResponse struct {
-	Data       []GetAllTodosOutput    `json:"data"`
+	Data       []GetAllTodosOutput      `json:"data"`
 	Pagination sharedDto.PaginationInfo `json:"pagination"`
 }
 

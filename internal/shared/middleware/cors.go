@@ -10,7 +10,7 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
 	config := cors.DefaultConfig()
-	
+
 	// Get allowed origins from environment variable
 	allowedOriginsEnv := os.Getenv("ALLOWED_ORIGINS")
 	if allowedOriginsEnv != "" {
@@ -19,7 +19,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		// Default to localhost for development
 		config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:8080"}
 	}
-	
+
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Content-Type", "Authorization"}
 	config.AllowCredentials = true

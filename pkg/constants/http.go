@@ -30,16 +30,16 @@ const (
 
 // HTTP error messages
 const (
-	MsgUnauthorized           = "UNAUTHORIZED"
-	MsgBadRequest             = "BAD_REQUEST"
-	MsgForbidden              = "FORBIDDEN"
-	MsgNotFound               = "NOT_FOUND"
-	MsgInternalError          = "INTERNAL_ERROR"
-	MsgValidationError        = "VALIDATION_ERROR"
-	MsgConflict               = "CONFLICT"
-	MsgMissingAuthHeader      = "missing authorization header"
-	MsgInvalidAuthHeader      = "invalid authorization header format"
-	MsgInvalidToken           = "invalid or expired token"
-	MsgInvalidTokenClaims     = "invalid token claims"
-	MsgMissingUserID          = "missing user_id in token"
+	MsgUnauthorized       = "UNAUTHORIZED"
+	MsgBadRequest         = "BAD_REQUEST"
+	MsgForbidden          = "FORBIDDEN"
+	MsgNotFound           = "NOT_FOUND"
+	MsgInternalError      = "INTERNAL_ERROR"
+	MsgValidationError    = "VALIDATION_ERROR"
+	MsgConflict           = "CONFLICT"
+	MsgMissingAuthHeader  = "missing authorization header"
+	MsgInvalidAuthHeader  = "invalid authorization header format"
+	MsgInvalidToken       = "invalid or expired token"
+	MsgInvalidTokenClaims = "invalid token claims"
+	MsgMissingUserID      = "missing user_id in token"
 )

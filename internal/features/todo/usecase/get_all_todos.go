@@ -13,9 +13,9 @@ type GetAllTodosUseCase struct {
 }
 
 func NewGetAllTodosUseCase(repo repositories.TodoRepository) *GetAllTodosUseCase {
-return &GetAllTodosUseCase{
-repository: repo,
-}
+	return &GetAllTodosUseCase{
+		repository: repo,
+	}
 }
 
 func (uc *GetAllTodosUseCase) Execute(ctx context.Context, userID string, input dto.GetAllTodosInput) (*dto.GetAllTodosResponse, error) {

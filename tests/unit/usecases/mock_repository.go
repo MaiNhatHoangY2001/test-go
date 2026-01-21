@@ -40,7 +40,7 @@ func (m *MockTodoRepository) GetByID(ctx context.Context, userID, id string) (*e
 func (m *MockTodoRepository) GetAll(ctx context.Context, userID string, page, limit int) ([]*entities.Todo, int64, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
-	
+
 	// Filter todos by user ID
 	userTodos := make([]*entities.Todo, 0)
 	for _, todo := range m.todos {
@@ -48,9 +48,9 @@ func (m *MockTodoRepository) GetAll(ctx context.Context, userID string, page, li
 			userTodos = append(userTodos, todo)
 		}
 	}
-	
+
 	totalCount := int64(len(userTodos))
-	
+
 	// Apply pagination using totalCount for boundary checking
 	start := (page - 1) * limit
 	end := start + limit
@@ -60,7 +60,7 @@ func (m *MockTodoRepository) GetAll(ctx context.Context, userID string, page, li
 	if end > int(totalCount) {
 		end = int(totalCount)
 	}
-	
+
 	return userTodos[start:end], totalCount, nil
 }
 

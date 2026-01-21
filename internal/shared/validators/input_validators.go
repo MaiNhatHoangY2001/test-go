@@ -67,7 +67,7 @@ func PasswordValidator(password string) (bool, string) {
 // TodoTitleValidator validates todo title
 func TodoTitleValidator(title string) (bool, string) {
 	title = strings.TrimSpace(title)
-	
+
 	if len(title) == 0 {
 		return false, "Title is required"
 	}
@@ -94,7 +94,7 @@ func TodoDescriptionValidator(description string) (bool, string) {
 // StringLengthValidator validates string length
 func StringLengthValidator(value string, minLen, maxLen int) (bool, string) {
 	value = strings.TrimSpace(value)
-	
+
 	if len(value) < minLen {
 		return false, "Value must be at least " + string(rune(minLen)) + " characters"
 	}
